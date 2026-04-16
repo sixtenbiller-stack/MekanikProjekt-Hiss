@@ -1,16 +1,18 @@
-function dydt = solver(t, y, bromsKraft, trumRadie, vridPunktLangdA, vridPunktLangdB, friktionsKoefficient, utVaxling, hjulMassa, hissMassa, hissArea)
+function dydt = solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, friktionsKoefficient, utVaxling, hjulMassa, hissMassa, hissArea, malAcceleration)
     %Initierar startvärden (begynnelsevärden)
     h = y(1); %Höjd (för själva hissen)
     v = y(2); %Hastighet (positivt hastighet uppåt)
     varmeEnergi = y(3); %Värmeenergiutveckling under processen
+    bromsKraft = y(4); %Bromskraften under inbromsningen
+
     
     if v < 0
     
-        kompenseradBromsKraft = bromsKraft; %bromsKraft*0.5 + bromsKraft*0.5*v^(v-5)
-        kraftPrimarback = (kompenseradBromsKraft * vridPunktLangdA) / ((vridPunktLangdA/2)-friktionsKoefficient*vridPunktLangdB);
-        kraftSekundarback = (kompenseradBromsKraft * vridPunktLangdA) / ((vridPunktLangdA/2)+friktionsKoefficient*vridPunktLangdB);
+        %bromsKraft = bromsKraft; %bromsKraft*0.5 + bromsKraft*0.5*v^(v-5)
+        kraftPrimarback = (bromsKraft * vridPunktLangdA) / ((vridPunktLangdA/2)-friktionsKoefficient*vridPunktLangdB);
+        kraftSekundarback = (bromsKraft * vridPunktLangdA) / ((vridPunktLangdA/2)+friktionsKoefficient*vridPunktLangdB);
         
-        bromsKraftRep = (kraftSekundarback + kraftSekundarback) * friktionsKoefficient * utVaxling %LÄGG TILL NÅT FÖR ATT GÖRA DEN TIDSBEROENDE
+        bromsKraftRep = (kraftSekundarback + kraftSekundarback) * friktionsKoefficient * utVaxling;
         
         cd = 1.5;
         rho = 1.2;
@@ -22,18 +24,27 @@ function dydt = solver(t, y, bromsKraft, trumRadie, vridPunktLangdA, vridPunktLa
     
         a = -kraftTot / (hissMassa + hjulMassa);
     
-        varmeEffekt = bromsKraftRep * v;
+        varmeEffekt = abs(bromsKraftRep * v);
+
+        if a<malAcceleration
+            dbromskraftdt = 2500 * (abs(a-malAcceleration)*2+0.25);
+        elseif a>malAcceleration + 0.1
+            dbromskraftdt = -1750 * (abs(a-malAcceleration)*2+0.25);
+        else
+            dbromskraftdt = 0;
+        end
 
     else
-        disp("Nu står hissen still!!")
         v = 0;
         a = 0;
         varmeEffekt = 0;
+        dbromskraftdt = 0;
     end
 
     dydt = [
         v,
         a,
-        varmeEffekt
+        varmeEffekt,
+        dbromskraftdt
            ];
 end
