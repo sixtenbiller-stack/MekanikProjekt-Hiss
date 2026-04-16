@@ -1,10 +1,19 @@
-function dydt = solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, friktionsKoefficient, utVaxling, hjulMassa, hissMassa, hissArea, malAcceleration)
+function dydt = solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, friktionsKoefficient, hjul, hjulMassa, hissMassa, hissArea, malAcceleration)
     %Initierar startvärden (begynnelsevärden)
     h = y(1); %Höjd (för själva hissen)
     v = y(2); %Hastighet (positivt hastighet uppåt)
     varmeEnergi = y(3); %Värmeenergiutveckling under processen
     bromsKraft = y(4); %Bromskraften under inbromsningen
-
+    
+    if hjul == 1
+        %Om bromsen ligger på det vänstra hjulet kommer repet att röra sig
+        %2x dess omkrets per rotation.
+        utVaxling = 1/2; 
+    else
+        %För det högra hjulet rör sig repet lika långt som dess omkrets
+        %under en rotation, alltså behövs inte kraften skalas om.
+        utVaxling = 1;
+    end
     
     if v < 0
     

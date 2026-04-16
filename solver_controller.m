@@ -1,14 +1,14 @@
 clear all;
 close all;
 
-%function dydt = solver(y0, bromsKraft, trumRadie, vridPunktLangdA, vridPunktLangdB, friktionsKoefficient, utVaxling, hjulMassa, hissMassa, hissArea)
+%function dydt = solver(y0, bromsKraft, trumRadie, vridPunktLangdA, vridPunktLangdB, friktionsKoefficient, hjul, hjulMassa, hissMassa, hissArea)
 
 bromsKraft = 3000;
 trumRadie = 0.2;
 vridPunktLangdA = 0.1;
 vridPunktLangdB = 0.05;
 friktionsKoefficient = 0.2;
-utVaxling = 1;
+hjul = 1;
 hjulMassa = 10;
 hissMassa = 300;
 hissArea = 2;
@@ -21,7 +21,7 @@ varmeEnergi = 0;
 
 y0 = [hojd, hastighet, varmeEnergi, bromsKraft];
 
-ode_fun = @(t,y) solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, friktionsKoefficient, utVaxling, hjulMassa, hissMassa, hissArea, malAcceleration);
+ode_fun = @(t,y) solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, friktionsKoefficient, hjul, hjulMassa, hissMassa, hissArea, malAcceleration);
 
 [t,y] = ode45(ode_fun,[0,15],y0);
 
