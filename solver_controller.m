@@ -3,16 +3,16 @@ close all;
 
 %function dydt = solver(y0, bromsKraft, trumRadie, vridPunktLangdA, vridPunktLangdB, friktionsKoefficient, hjul, hjulMassa, hissMassa, hissArea)
 
-bromsKraft = 3000;
+bromsKraft = 300;
 trumRadie = 0.2;
 vridPunktLangdA = 0.1;
 vridPunktLangdB = 0.05;
 friktionsKoefficient = 0.2;
-hjul = 1;
-hjulMassa = 10;
+hjul = 2;
+hjulMassa = 600; %Denna agerar motvikt
 hissMassa = 300;
 hissArea = 2;
-malAcceleration = 1;
+malAcceleration = 1.2;
 
 %Begynnelsevärden:
 hojd = 0;
@@ -43,5 +43,9 @@ plot(t(1:end-1), bromsEffekt); %bromsEffekt
 title("Bromseffekt (värme-effekt) /Tid");
 figure;
 
-plot(t,y(:,4))
+plot(t, y(:,3)); %Bromsad energi
+title("Bromsad energi/tid");
+figure;
+
+plot(t, max(0, y(:,4)))
 title("Applicerad bromskraft/Tid"); %Bromskraft (kraften på vardera back)

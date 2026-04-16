@@ -4,6 +4,7 @@ function dydt = solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, frikti
     v = y(2); %Hastighet (positivt hastighet uppåt)
     varmeEnergi = y(3); %Värmeenergiutveckling under processen
     bromsKraft = y(4); %Bromskraften under inbromsningen
+    bromsKraft = max(0, y(4)); % Bromsen kan aldrig trycka mindre än 0 Newton
     
     if hjul == 1
         %Om bromsen ligger på det vänstra hjulet kommer repet att röra sig
@@ -22,7 +23,7 @@ function dydt = solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, frikti
     
     %Den faktiska bromskraften som appliceras på repet
     bromsKraftRep = (kraftSekundarback + kraftPrimarback) * friktionsKoefficient * utVaxling;
-    
+
     %Nasa drag equation, för att uppskatta luftmotståndskraften
     cd = 1.5;
     rho = 1.2;
@@ -39,7 +40,7 @@ function dydt = solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, frikti
 
     %Beräkna den resulterande accelerationen skapad av bromskraften på
     %repet
-    a = -kraftTot / (hissMassa + hjulMassa);
+    a = -kraftTot / (hissMassa + (hjulMassa/4));
 
     %Systemet som möjliggör hissen att ändra sin bromskraft beroende på
     %belastningen och siktar på att hålla en konstant acceleration
@@ -48,7 +49,7 @@ function dydt = solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, frikti
     if v >= 0
         bromsKraftRep = bromsKraftRep * 1.25; %Hanterar icke-glidning
         kraftTot = tyngdKraft - (luftMotstandsKraft + bromsKraftRep);
-        a = -kraftTot / (hissMassa + hjulMassa);
+        a = -kraftTot / (hissMassa + (hjulMassa/4));
         %I fallet att hissen har stannat
         v = 0;
         if a>0
