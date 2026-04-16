@@ -36,12 +36,11 @@ figure;
 acceleration = diff(y(:,2))./diff(t);
 plot(t(1:end-1), acceleration); %Accelerationen
 title("Acceleration/Tid");
-
 figure;
 
 bromsEffekt = diff(y(:,3))./diff(t);
 plot(t(1:end-1), bromsEffekt); %bromsEffekt
-title("Bromseffekt/Tid");
+title("Bromseffekt (värme-effekt) /Tid");
 figure;
 
 plot(t,y(:,4))
