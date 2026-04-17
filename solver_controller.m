@@ -23,7 +23,7 @@ y0 = [hojd, hastighet, varmeEnergi, bromsKraft];
 
 ode_fun = @(t,y) solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, friktionsKoefficient, hjul, hjulMassa, hissMassa, hissArea, malAcceleration);
 
-[t,y] = ode45(ode_fun,[0,15],y0);
+[t,y] = ode45(ode_fun,[0,10],y0);
 
 plot(t,y(:,1)); %Höjden
 title("Höjd/Tid");

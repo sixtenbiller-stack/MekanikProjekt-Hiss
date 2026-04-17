@@ -61,14 +61,30 @@ function dydt = solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, frikti
     %multiplicerad med hastigheten
     varmeEffekt = abs(bromsKraftRep * v);
 
+    % if a<malAcceleration
+    %     dbromskraftdt = 2500 * (abs(a-malAcceleration)*2+0.25);
+    % elseif a>malAcceleration + 0.1
+    %     dbromskraftdt = -1750 * (abs(a-malAcceleration)*2+0.25);
+    % else
+    %     dbromskraftdt = 0;
+    % end
 
-    if a<malAcceleration
-        dbromskraftdt = 2500 * (abs(a-malAcceleration)*2+0.25);
-    elseif a>malAcceleration + 0.1
-        dbromskraftdt = -1750 * (abs(a-malAcceleration)*2+0.25);
-    else
-        dbromskraftdt = 0;
+    Kp = 15000;
+    Kd = 34;
+
+    error = a - malAcceleration;
+
+    persistent a_old
+    if isempty(a_old)
+        a_old = a; 
     end
+
+    da_dt = (a - a_old) / 0.01; % En enkel approximation av accelerationens förändring
+    a_old = a;
+
+    % 3. Den slutgiltiga PD-ekvationen för bromskraftens förändring
+    dbromskraftdt = -Kp * error - Kd * da_dt
+    
 
     %Applicera derivatorna i diff-ekvationen
     dydt = [
