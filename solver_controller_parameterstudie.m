@@ -13,12 +13,17 @@ hjulMassa = 600; %Denna agerar motvikt
 hissArea = 2;
 malAcceleration = 1.2;
 
+%Regler-loop (PID)
+Kp = 10000;
+Ki = 100;
+Kd = 35;
+
 %Begynnelsevärden:
 hojd = 0;
 hastighet = -20;
 varmeEnergi = 0;
 
-y0 = [hojd, hastighet, varmeEnergi, bromsKraft, 293.15];
+y0 = [hojd, hastighet, varmeEnergi, bromsKraft, 293.15, 0];
 
 startMassa = 200;
 slutMassa = 3000;
@@ -32,7 +37,7 @@ Z = zeros(length(massaSpan), length(t_fix));
 i = 1; 
 
 for m = massaSpan
-   ode_fun = @(t,y) solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, friktionsKoefficient, hjul, hjulMassa, m, hissArea, malAcceleration);
+   ode_fun = @(t,y) solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, friktionsKoefficient, hjul, hjulMassa, m, hissArea, malAcceleration, Kp, Ki, Kd);
    
    [t, y] = ode45(ode_fun, [0, 25], y0);
    
