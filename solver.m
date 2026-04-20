@@ -12,7 +12,7 @@ function dydt = solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, frikti
     specifikVarmeKapacitetMaterial = 500; %J/(kg*k), vi tänker att det är stål
     materialMassa = 50; %kg
     varmeKapacitet = specifikVarmeKapacitetMaterial * materialMassa;
-    ackumuleratFel = y(5);
+    ackumuleratFel = y(6);
 
     if hjul == 1
         %Om bromsen ligger på det vänstra hjulet kommer repet att röra sig
@@ -77,16 +77,6 @@ function dydt = solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, frikti
     varmeEffekt = abs(bromsKraftRep * v);
     dtrumTemperaturdt = varmeEffekt/varmeKapacitet;
 
-
-    if a<malAcceleration
-            dbromskraftdt = 2500 * (abs(a-malAcceleration)*2+0.25);
-        elseif a>malAcceleration + 0.1
-            dbromskraftdt = -1750 * (abs(a-malAcceleration)*2+0.25);
-        else
-            dbromskraftdt = 0;
-    end
-
-
     error = malAcceleration - a;
 
     %persistent a_old
@@ -104,11 +94,11 @@ function dydt = solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, frikti
 
     %Applicera derivatorna i diff-ekvationen
     dydt = [
-        v,
-        a,
-        varmeEffekt,
-        dbromskraftdt,
-        dtrumTemperaturdt,
-        dAckumuleratFeldt
-           ];
+        v;                  % dy(1)
+        a;                  % dy(2)
+        varmeEffekt;        % dy(3)
+        dbromskraftdt;      % dy(4)
+        dtrumTemperaturdt;  % dy(5)
+        dAckumuleratFeldt   % dy(6)
+    ];
 end

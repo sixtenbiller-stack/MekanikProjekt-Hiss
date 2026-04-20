@@ -1,8 +1,6 @@
 clear all;
 close all;
 
-%function dydt = solver(y0, bromsKraft, trumRadie, vridPunktLangdA, vridPunktLangdB, friktionsKoefficient, hjul, hjulMassa, hissMassa, hissArea)
-
 bromsKraft = 300;
 trumRadie = 0.6;
 vridPunktLangdA = 0.30;
