@@ -4,9 +4,16 @@ function dydt = solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, frikti
     v = y(2); %Hastighet (positivt hastighet uppåt)
     varmeEnergi = y(3); %Värmeenergiutveckling under processen
     bromsKraft = y(4); %Bromskraften under inbromsningen
-    bromsKraft = max(0, y(4)); % Bromsen kan aldrig trycka mindre än 0 Newton
+    bromsKraft = max(0, y(4)); % Bromsen kan aldrig trycka mindre än 0 Newton, och
+                               % därmed aldrig råka trycka hissen uppåt
+                               % istället.
+    trumTemperatur = y(5); %Temperaturen av bromsen i sin helhet
+
+    specifikVarmeKapacitetMaterial = 500; %J/(kg*k), vi tänker att det är stål
+    materialMassa = 50; %kg
+    varmeKapacitet = specifikVarmeKapacitetMaterial * materialMassa;
     ackumuleratFel = y(5);
-    
+
     if hjul == 1
         %Om bromsen ligger på det vänstra hjulet kommer repet att röra sig
         %2x dess omkrets per rotation.
@@ -16,6 +23,13 @@ function dydt = solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, frikti
         %under en rotation, alltså behövs inte kraften skalas om.
         utVaxling = 1;
     end
+
+    %Vi tänker att bromsen tappar sin fritkionskoefficient linjärt efter 300c
+    if trumTemperatur > 300+273.15
+        deltaT = trumTemperatur - (300 + 273.15);
+        friktionsKoefficient = friktionsKoefficient - (friktionsKoefficient * (deltaT / 150));
+    end
+    friktionsKoefficient = max(0,friktionsKoefficient);
 
     %Dessa är funktionerna lösta i tentauppgiften, alltså, kraften på
     %vardera back inklusive förstärkning/försvagningskraften inräknad
@@ -61,24 +75,27 @@ function dydt = solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, frikti
     %Spillvärme-effekten beräknad genom att ta bromskraften (i repet)
     %multiplicerad med hastigheten
     varmeEffekt = abs(bromsKraftRep * v);
+    dtrumTemperaturdt = varmeEffekt/varmeKapacitet;
 
-    % if a<malAcceleration
-    %     dbromskraftdt = 2500 * (abs(a-malAcceleration)*2+0.25);
-    % elseif a>malAcceleration + 0.1
-    %     dbromskraftdt = -1750 * (abs(a-malAcceleration)*2+0.25);
-    % else
-    %     dbromskraftdt = 0;
-    % end
+
+    if a<malAcceleration
+            dbromskraftdt = 2500 * (abs(a-malAcceleration)*2+0.25);
+        elseif a>malAcceleration + 0.1
+            dbromskraftdt = -1750 * (abs(a-malAcceleration)*2+0.25);
+        else
+            dbromskraftdt = 0;
+    end
+
 
     error = malAcceleration - a;
 
-    persistent a_old
-    if isempty(a_old)
-        a_old = a; 
-    end
+    %persistent a_old
+    %if isempty(a_old)
+    %    a_old = a; 
+    %end
 
-    da_dt = (a - a_old) / 0.01; % En enkel approximation av accelerationens förändring
-    a_old = a;
+    %da_dt = (a - a_old) / 0.01; % En enkel approximation av accelerationens förändring
+    %a_old = a;
 
     % 3. Den slutgiltiga PID-ekvationen för bromskraftens förändring
     dbromskraftdt = Kp * error + Ki * ackumuleratFel;
@@ -91,6 +108,7 @@ function dydt = solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, frikti
         a,
         varmeEffekt,
         dbromskraftdt,
+        dtrumTemperaturdt,
         dAckumuleratFeldt
            ];
 end

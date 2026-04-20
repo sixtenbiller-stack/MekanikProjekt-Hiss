@@ -4,9 +4,9 @@ close all;
 %function dydt = solver(y0, bromsKraft, trumRadie, vridPunktLangdA, vridPunktLangdB, friktionsKoefficient, hjul, hjulMassa, hissMassa, hissArea)
 
 bromsKraft = 300;
-trumRadie = 0.2;
-vridPunktLangdA = 0.1;
-vridPunktLangdB = 0.05;
+trumRadie = 0.6;
+vridPunktLangdA = 0.30;
+vridPunktLangdB = 0.15;
 friktionsKoefficient = 0.2;
 hjul = 2;
 hjulMassa = 600; %Denna agerar motvikt
@@ -24,7 +24,7 @@ hojd = 0;
 hastighet = -10;
 varmeEnergi = 0;
 
-y0 = [hojd, hastighet, varmeEnergi, bromsKraft, 0];
+y0 = [hojd, hastighet, varmeEnergi, bromsKraft, 293.15, 0];
 
 ode_fun = @(t,y) solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, friktionsKoefficient, hjul, hjulMassa, hissMassa, hissArea, malAcceleration, Kp, Ki, Kd);
 
@@ -54,3 +54,6 @@ figure;
 
 plot(t, max(0, y(:,4)))
 title("Applicerad bromskraft/Tid"); %Bromskraft (kraften på vardera back)
+figure;
+
+plot(t,y(:,5))
