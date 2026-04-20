@@ -69,8 +69,9 @@ function dydt = solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, frikti
     %     dbromskraftdt = 0;
     % end
 
-    Kp = 15000;
-    Kd = 34;
+    Kp = 100;
+    Ki = 10;
+    Kd = 0;
 
     error = a - malAcceleration;
 
@@ -84,6 +85,7 @@ function dydt = solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, frikti
 
     % 3. Den slutgiltiga PD-ekvationen för bromskraftens förändring
     dbromskraftdt = -Kp * error - Kd * da_dt
+    dbromskraftdt = Kp * error + Ki * ackumuleratFel;
     
 
     %Applicera derivatorna i diff-ekvationen
