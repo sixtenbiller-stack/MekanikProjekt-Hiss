@@ -14,14 +14,19 @@ hissMassa = 300;
 hissArea = 2;
 malAcceleration = 1.2;
 
+%Regler-loop (PID)
+Kp = 10000;
+Ki = 100;
+Kd = 35;
+
 %Begynnelsevärden:
 hojd = 0;
 hastighet = -10;
 varmeEnergi = 0;
 
-y0 = [hojd, hastighet, varmeEnergi, bromsKraft];
+y0 = [hojd, hastighet, varmeEnergi, bromsKraft, 0];
 
-ode_fun = @(t,y) solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, friktionsKoefficient, hjul, hjulMassa, hissMassa, hissArea, malAcceleration);
+ode_fun = @(t,y) solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, friktionsKoefficient, hjul, hjulMassa, hissMassa, hissArea, malAcceleration, Kp, Ki, Kd);
 
 [t,y] = ode45(ode_fun,[0,10],y0);
 

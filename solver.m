@@ -1,10 +1,11 @@
-function dydt = solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, friktionsKoefficient, hjul, hjulMassa, hissMassa, hissArea, malAcceleration)
+function dydt = solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, friktionsKoefficient, hjul, hjulMassa, hissMassa, hissArea, malAcceleration, Kp, Ki, Kd)
     %Initierar startvärden (begynnelsevärden)
     h = y(1); %Höjd (för själva hissen)
     v = y(2); %Hastighet (positivt hastighet uppåt)
     varmeEnergi = y(3); %Värmeenergiutveckling under processen
     bromsKraft = y(4); %Bromskraften under inbromsningen
     bromsKraft = max(0, y(4)); % Bromsen kan aldrig trycka mindre än 0 Newton
+    ackumuleratFel = y(5);
     
     if hjul == 1
         %Om bromsen ligger på det vänstra hjulet kommer repet att röra sig
@@ -28,7 +29,7 @@ function dydt = solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, frikti
     cd = 1.5;
     rho = 1.2;
     A = hissArea;
-    luftMotstandsKraft = cd * rho * ((v^2)/2) * A * (v/v);
+    luftMotstandsKraft = cd * rho * ((v^2)/2) * A * sign(v);
 
     %Tyngdkraften beräknad för hela systemet.
     %I detta fall hänger hjulet på motsatt sida av hissen och därmed
@@ -69,11 +70,7 @@ function dydt = solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, frikti
     %     dbromskraftdt = 0;
     % end
 
-    Kp = 100;
-    Ki = 10;
-    Kd = 0;
-
-    error = a - malAcceleration;
+    error = malAcceleration - a;
 
     persistent a_old
     if isempty(a_old)
@@ -83,16 +80,17 @@ function dydt = solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, frikti
     da_dt = (a - a_old) / 0.01; % En enkel approximation av accelerationens förändring
     a_old = a;
 
-    % 3. Den slutgiltiga PD-ekvationen för bromskraftens förändring
-    dbromskraftdt = -Kp * error - Kd * da_dt
+    % 3. Den slutgiltiga PID-ekvationen för bromskraftens förändring
     dbromskraftdt = Kp * error + Ki * ackumuleratFel;
-    
+
+    dAckumuleratFeldt = error;
 
     %Applicera derivatorna i diff-ekvationen
     dydt = [
         v,
         a,
         varmeEffekt,
-        dbromskraftdt
+        dbromskraftdt,
+        dAckumuleratFeldt
            ];
 end
