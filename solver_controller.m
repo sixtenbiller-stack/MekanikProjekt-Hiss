@@ -28,30 +28,69 @@ ode_fun = @(t,y) solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, frikt
 
 [t,y] = ode45(ode_fun,[0,10],y0);
 
-plot(t,y(:,1)); %Höjden
-title("Höjd/Tid");
+plot(t,y(:,1),'LineWidth',6); %Höjden
+title("Höjd över Tid");
+xlabel('Tid [s]');
+ylabel('Höjd [m]');
+ax = gca;
+ax.FontSize = 16;
+grid on;
 figure;
 
-plot(t,y(:,2)); %Hastigheten
-title("Hastighet/Tid");
+plot(t,y(:,2),'LineWidth',6); %Hastigheten
+title("Hastighet över Tid");
+xlabel('Tid [s]');
+ylabel('Hastighet [m/s]');
+ax = gca;
+ax.FontSize = 16;
+grid on;
 figure;
 
 acceleration = diff(y(:,2))./diff(t);
-plot(t(1:end-1), acceleration); %Accelerationen
-title("Acceleration/Tid");
+plot(t(1:end-1), acceleration,'LineWidth',4); %Accelerationen
+title("Acceleration över Tid");
+xlabel('Tid [s]');
+ylabel('Acceleration [m/s^2]');
+ax = gca;
+ax.FontSize = 16;
+grid on;
 figure;
 
 bromsEffekt = diff(y(:,3))./diff(t);
-plot(t(1:end-1), bromsEffekt); %bromsEffekt
-title("Bromseffekt (värme-effekt) /Tid");
+plot(t(1:end-1), bromsEffekt,'LineWidth',6); %BromsEffekt
+title("Bromseffekt (värme-effekt) över Tid");
+xlabel('Tid [s]');
+ylabel('Bromseffekt [J/s]');
+ax = gca;
+ax.FontSize = 16;
+grid on;
 figure;
 
-plot(t, y(:,3)); %Bromsad energi
-title("Bromsad energi/tid");
+plot(t, y(:,3),'LineWidth',6); %Bromsad energi
+title("Bromsad energi över tid");
+xlabel('Tid [s]');
+ylabel('Bromsad energi [J]');
+ax = gca;
+ax.FontSize = 16;
+grid on;
 figure;
 
-plot(t, max(0, y(:,4)))
-title("Applicerad bromskraft/Tid"); %Bromskraft (kraften på vardera back)
+
+bromsKraft = y(:,4);
+bromsKraft(abs(y(:,2)) < 0.01) = 0;
+plot(t,bromsKraft ,'LineWidth',6);
+title("Applicerad bromskraft över Tid"); %Bromskraft (kraften på vardera back)
+xlabel('Tid [s]');
+ylabel('Applicerad bromskraft [N]');
+ax = gca;
+ax.FontSize = 16;
+grid on;
 figure;
 
-plot(t,y(:,5))
+plot(t,y(:,5),'LineWidth',6);
+title("Bromstemperatur över Tid"); %Bromsens temperatur i helhet
+xlabel('Tid [s]');
+ylabel('Bromstemperatur [K]');
+ax = gca;
+ax.FontSize = 16;
+grid on;

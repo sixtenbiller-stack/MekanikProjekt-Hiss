@@ -20,7 +20,7 @@ Kd = 35;
 
 %Begynnelsevärden:
 hojd = 0;
-hastighet = -20;
+hastighet = -23;
 varmeEnergi = 0;
 
 y0 = [hojd, hastighet, varmeEnergi, bromsKraft, 293.15, 0];
@@ -58,9 +58,13 @@ end
 [T, M_grid] = meshgrid(t_fix, massaSpan);
 
 figure
-surf(T, M_grid, Z)
+s = surf(T, M_grid, Z);
+ax = gca; 
+ax.FontSize = 16;
+colormap turbo
+s.EdgeAlpha = 0.3;
 
-xlabel('Tid (s)')
-ylabel('Massa (kg)')
-zlabel('Appliceringskraft (N)')
-title('Bromskraftsapplicering med massa och tid')
+xlabel('Tid [s]')
+ylabel('Massa [kg]')
+zlabel('Appliceringskraft [N]')
+title('Bromskraftsappliceringskraft med massa och tid')
