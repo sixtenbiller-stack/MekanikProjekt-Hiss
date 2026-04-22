@@ -105,7 +105,7 @@ installning2 = odeset('RelTol', 1e-3, 'AbsTol', 1e-5);
 
 felVektor = abs(yfel(:,1)-y(:,1));
 
-plot(t,felVektor);
+plot(t,felVektor,'LineWidth',4);
 title("Feluppskattning av höjd över tid (en lösning med 1/10 precision)"); %Bromsens temperatur i helhet
 xlabel('Tid [s]');
 ylabel('Fel [m]');
