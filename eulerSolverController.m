@@ -13,7 +13,8 @@ hissArea = 2;
 malAcceleration = 1.2;
 
 %Solver regler:
-antalSteg = 500;
+h = 1/100;
+tid = 15;
 
 %Regler-loop (PID)
 Kp = 10000;
@@ -25,11 +26,9 @@ hojd = 0;
 hastighet = -10;
 varmeEnergi = 0;
 
-y0 = [hojd, hastighet, varmeEnergi, bromsKraft, 293.15, 0];
+y0 = [hojd, hastighet, varmeEnergi, bromsKraft, 293.15,0];
 
-ode_fun = @(t,y) solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, friktionsKoefficient, hjul, hjulMassa, hissMassa, hissArea, malAcceleration, Kp, Ki, Kd);
-installning1 = odeset('RelTol', 1e-4, 'AbsTol', 1e-5);
-[t,y] = ode45(ode_fun,linspace(0,10,antalSteg),y0, installning1);
+[t,y] = eulerSolver(h,tid,y0,trumRadie, vridPunktLangdA, vridPunktLangdB, friktionsKoefficient, hjul, hjulMassa, hissMassa, hissArea, malAcceleration, Kp, Ki, Kd);
 
 plot(t,y(:,1),'LineWidth',6); %Höjden
 title("Höjd över Tid");
@@ -100,13 +99,29 @@ grid on;
 figure;
 
 %Feluppskattning
-installning2 = odeset('RelTol', 1e-3, 'AbsTol', 1e-5);
-[tfel,yfel] = ode45(ode_fun,linspace(0,10,antalSteg),y0, installning2);
+h = h*2;
+[tfel,yfel] = eulerSolver(h,tid,y0,trumRadie, vridPunktLangdA, vridPunktLangdB, friktionsKoefficient, hjul, hjulMassa, hissMassa, hissArea, malAcceleration, Kp, Ki, Kd);
+h = h*2;
+[tfel2,yfel2] = eulerSolver(h,tid,y0,trumRadie, vridPunktLangdA, vridPunktLangdB, friktionsKoefficient, hjul, hjulMassa, hissMassa, hissArea, malAcceleration, Kp, Ki, Kd);
 
-felVektor = abs(yfel(:,1)-y(:,1));
+ykortkort = y(1:4:end, :);
+yfelkort = yfel(1:2:end, :);
 
-plot(t,felVektor,'LineWidth',4);
-title("Feluppskattning av höjd över tid (en lösning med 1/10 precision)"); %Bromsens temperatur i helhet
+felfaktor = (abs(yfelkort(:,1)-yfel2(:,1))./abs(ykortkort(:,1)-yfelkort(:,1)));
+
+plot(tfel2,felfaktor,'LineWidth',4);
+title("Felfaktor"); %Hur snabbt felet ändras med dubbla steglängden
+xlabel('Tid [s]');
+ylabel('Felets faktor med dubbla steglängden');
+ax = gca;
+ax.FontSize = 18;
+grid on;
+figure
+ykort = y(1:2:end, :);
+felvektor = abs(yfel(:,1) - ykort(:,1));
+
+plot(tfel,felvektor,'LineWidth',4);
+title("Uppskattade globala felet"); %Uppskattning av det globala felet
 xlabel('Tid [s]');
 ylabel('Fel [m]');
 ax = gca;

@@ -60,7 +60,7 @@ end
 figure
 s = surf(T, M_grid, Z);
 ax = gca; 
-ax.FontSize = 16;
+ax.FontSize = 18;
 colormap turbo
 s.EdgeAlpha = 0.3;
 
