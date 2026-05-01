@@ -13,13 +13,13 @@ hissArea = 2;
 malAcceleration = 1.2;
 
 %Solver regler:
-h = 1/100;
+h = 1/1000;
 tid = 15;
 
 %Regler-loop (PID)
-Kp = 10000;
-Ki = 100;
-Kd = 35;
+Kp = 0;
+Ki = 3000;
+Kd = 0;
 
 %Begynnelsevärden:
 hojd = 0;

@@ -14,9 +14,31 @@ function [t,y] = eulerSolver(h,tid, y, trumRadie, vridPunktLangdA, vridPunktLang
     varmeKapacitet = specifikVarmeKapacitetMaterial * materialMassa;
     ackumuleratFel = y(6);
 
-    y = [y];
-    t = [h];
+    y_ut = [y];
+    t_ut = [0];
+
+    a = 0;
+    error = malAcceleration - a;
+    error_gammal = error; % <--- Sätt denna till det initiala felet istället för 0
+
     for i = (h:h:tid);
+        % 1. Beräkna felet
+        error = malAcceleration - a;
+
+        % 2. Integraldel (med anti-windup)
+        ackumuleratFel = ackumuleratFel + error * h;
+
+        % 3. Derivatadel
+        d_error = (error - error_gammal) / h;
+        error_gammal = error;
+
+        % 4. Sätt bromskraften direkt
+        % Här blir bromsKraft summan av de tre termerna
+        bromsKraft = Kp * error + Ki * ackumuleratFel + Kd * d_error;
+
+        % 5. Fysisk begränsning
+        % Bromsen kan inte ha negativ kraft (skjuta hissen uppåt)
+        bromsKraft = max(0, bromsKraft); % Fysisk begränsning
 
         if hjul == 1
             %Om bromsen ligger på det vänstra hjulet kommer repet att röra sig
@@ -65,15 +87,22 @@ function [t,y] = eulerSolver(h,tid, y, trumRadie, vridPunktLangdA, vridPunktLang
         %belastningen och siktar på att hålla en konstant acceleration
         %vilket ges av malAcceleration
         
-        if v >= 0
-            bromsKraftRep = bromsKraftRep * 1.25; %Hanterar icke-glidning
-            kraftTot = tyngdKraft - (luftMotstandsKraft + bromsKraftRep);
-            a = -kraftTot / (hissMassa + (hjulMassa/4));
-            %I fallet att hissen har stannat
+        % if v >= 0
+        %     bromsKraftRep = bromsKraftRep * 1.25; %Hanterar icke-glidning
+        %     kraftTot = tyngdKraft - (luftMotstandsKraft + bromsKraftRep);
+        %     a = -kraftTot / (hissMassa + (hjulMassa/4));
+        %     %I fallet att hissen har stannat
+        %     v = 0;
+        %     a = 0;
+        % end
+
+        if v + a * h >= 0
             v = 0;
-            if a>0
-                a = 0;
-            end
+            a = 0;
+            % Lägg till sista punkten och avsluta simuleringen
+            y_ut = [y_ut; hojd, v, varmeEnergi, bromsKraft, trumTemperatur, ackumuleratFel];
+            t_ut = [t_ut; i];
+            break; 
         end
     
         %Spillvärme-effekten beräknad genom att ta bromskraften (i repet)
@@ -81,31 +110,17 @@ function [t,y] = eulerSolver(h,tid, y, trumRadie, vridPunktLangdA, vridPunktLang
         varmeEffekt = abs(bromsKraftRep * v);
         dtrumTemperaturdt = varmeEffekt/varmeKapacitet;
     
-        error = malAcceleration - a;
-    
-        %persistent a_old
-        %if isempty(a_old)
-        %    a_old = a; 
-        %end
-    
-        %da_dt = (a - a_old) / 0.01; % En enkel approximation av accelerationens förändring
-        %a_old = a;
-    
-        % 3. Den slutgiltiga PID-ekvationen för bromskraftens förändring
-        dbromskraftdt = Kp * error + Ki * ackumuleratFel;
-    
-        dAckumuleratFeldt = error;
-    
         %Applicera derivatorna i diff-ekvationen
         hojd = hojd + v * h;
         v = v + a * h;
         varmeEnergi = varmeEnergi + varmeEffekt * h;
-        bromsKraft = bromsKraft + dbromskraftdt * h;
+        % bromsKraft = bromsKraft + dbromskraftdt * h;
         trumTemperatur = trumTemperatur + dtrumTemperaturdt * h;
-        ackumuleratFel = dAckumuleratFeldt;
-        y = [y;hojd,v,varmeEnergi,bromsKraft,trumTemperatur,ackumuleratFel];
-        t = [t;i];
+        % ackumuleratFel = dAckumuleratFeldt;
+        y_ut = [y_ut;hojd,v,varmeEnergi,bromsKraft,trumTemperatur,ackumuleratFel];
+        t_ut = [t_ut;i];
 
     end
-    [t,y];
+    t = t_ut;
+    y = y_ut;
 end
