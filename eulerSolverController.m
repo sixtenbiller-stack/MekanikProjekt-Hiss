@@ -18,7 +18,7 @@ tid = 15;
 
 %Regler-loop (PID)
 Kp = 0;
-Ki = 3000;
+Ki = 3000; % Behövdes endast en I-regulator
 Kd = 0;
 
 %Begynnelsevärden:

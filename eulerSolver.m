@@ -25,7 +25,7 @@ function [t,y] = eulerSolver(h,tid, y, trumRadie, vridPunktLangdA, vridPunktLang
         % 1. Beräkna felet
         error = malAcceleration - a;
 
-        % 2. Integraldel (med anti-windup)
+        % 2. Integraldel
         ackumuleratFel = ackumuleratFel + error * h;
 
         % 3. Derivatadel
