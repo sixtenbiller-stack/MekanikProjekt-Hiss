@@ -2,7 +2,7 @@ Det finns två olika solvers:
 - Solver
 - Euler solver
 
-*Solver* använder ODE45 som lösar och *Euler solver* använder Eulers stegmetod frammåt.
+*Solver* använder ODE45 som lösar och *Euler solver* använder Eulers stegmetod framåt.
 
 Dessa kontrolleras av deras respektive "Solver Controller" där man matar in initialvärden och får plots på grafer
 
