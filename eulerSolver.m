@@ -19,26 +19,24 @@ function [t,y] = eulerSolver(h,tid, y, trumRadie, vridPunktLangdA, vridPunktLang
 
     a = 0;
     error = malAcceleration - a;
-    error_gammal = error; % <--- Sätt denna till det initiala felet istället för 0
+    error_gammal = error;
 
     for i = (h:h:tid);
-        % 1. Beräkna felet
+        %Beräkna felet
         error = malAcceleration - a;
 
-        % 2. Integraldel
+        %Integraldel
         ackumuleratFel = ackumuleratFel + error * h;
 
-        % 3. Derivatadel
+        %Derivatadel
         d_error = (error - error_gammal) / h;
         error_gammal = error;
 
-        % 4. Sätt bromskraften direkt
         % Här blir bromsKraft summan av de tre termerna
         bromsKraft = Kp * error + Ki * ackumuleratFel + Kd * d_error;
 
-        % 5. Fysisk begränsning
-        % Bromsen kan inte ha negativ kraft (skjuta hissen uppåt)
-        bromsKraft = max(0, bromsKraft); % Fysisk begränsning
+        %Bromsen kan inte ha negativ kraft (skjuta hissen uppåt)
+        bromsKraft = max(0, bromsKraft);
 
         if hjul == 1
             %Om bromsen ligger på det vänstra hjulet kommer repet att röra sig
@@ -50,20 +48,21 @@ function [t,y] = eulerSolver(h,tid, y, trumRadie, vridPunktLangdA, vridPunktLang
             utVaxling = 1;
         end
     
+        anpassadFriktionsKoefficient = friktionsKoefficient;
         %Vi tänker att bromsen tappar sin fritkionskoefficient linjärt efter 300c
         if trumTemperatur > 300+273.15
             deltaT = trumTemperatur - (300 + 273.15);
-            friktionsKoefficient = friktionsKoefficient - (friktionsKoefficient * (deltaT / 150));
+            anpassadFriktionsKoefficient = friktionsKoefficient - (friktionsKoefficient * (deltaT / 150));
         end
-        friktionsKoefficient = max(0,friktionsKoefficient);
+        anpassadFriktionsKoefficient = max(0,anpassadFriktionsKoefficient);
     
         %Dessa är funktionerna lösta i tentauppgiften, alltså, kraften på
         %vardera back inklusive förstärkning/försvagningskraften inräknad
-        kraftPrimarback = (bromsKraft * vridPunktLangdA) / ((vridPunktLangdA/2)-friktionsKoefficient*vridPunktLangdB);
-        kraftSekundarback = (bromsKraft * vridPunktLangdA) / ((vridPunktLangdA/2)+friktionsKoefficient*vridPunktLangdB);
+        kraftPrimarback = (bromsKraft * vridPunktLangdA) / ((vridPunktLangdA/2)-anpassadFriktionsKoefficient*vridPunktLangdB);
+        kraftSekundarback = (bromsKraft * vridPunktLangdA) / ((vridPunktLangdA/2)+anpassadFriktionsKoefficient*vridPunktLangdB);
         
         %Den faktiska bromskraften som appliceras på repet
-        bromsKraftRep = (kraftSekundarback + kraftPrimarback) * friktionsKoefficient * utVaxling;
+        bromsKraftRep = (kraftSekundarback + kraftPrimarback) * anpassadFriktionsKoefficient * utVaxling;
     
         %Nasa drag equation, för att uppskatta luftmotståndskraften
         cd = 1.5;
@@ -100,9 +99,9 @@ function [t,y] = eulerSolver(h,tid, y, trumRadie, vridPunktLangdA, vridPunktLang
             v = 0;
             a = 0;
             % Lägg till sista punkten och avsluta simuleringen
-            y_ut = [y_ut; hojd, v, varmeEnergi, bromsKraft, trumTemperatur, ackumuleratFel];
-            t_ut = [t_ut; i];
-            break; 
+            %y_ut = [y_ut; hojd, v, varmeEnergi, bromsKraft, trumTemperatur, ackumuleratFel];
+            %t_ut = [t_ut; i];
+            %break; 
         end
     
         %Spillvärme-effekten beräknad genom att ta bromskraften (i repet)

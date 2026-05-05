@@ -14,13 +14,13 @@ hissArea = 2;
 malAcceleration = 1.2;
 
 %Regler-loop (PID)
-Kp = 10000;
-Ki = 100;
-Kd = 35;
+Kp = 0;
+Ki = 3000;
+Kd = 0;
 
 %Begynnelsevärden:
 hojd = 0;
-hastighet = -23;
+hastighet = -20;
 varmeEnergi = 0;
 
 y0 = [hojd, hastighet, varmeEnergi, bromsKraft, 293.15, 0];
@@ -29,40 +29,27 @@ startMassa = 200;
 slutMassa = 3000;
 massaSpan  = startMassa:25:slutMassa;
 
-%Vi behöver definiera en gemensam tidsaxel som alla mätningar kan svara
-%till
-t_fix = linspace(0, 25, 100); 
-Z = zeros(length(massaSpan), length(t_fix)); 
+tid = 25;
+h = 0.01;
 
-i = 1; 
-
+Z = zeros(length(massaSpan),tid/h+1);
+i = 1;
 for m = massaSpan
-   ode_fun = @(t,y) solver(t, y, trumRadie, vridPunktLangdA, vridPunktLangdB, friktionsKoefficient, hjul, hjulMassa, m, hissArea, malAcceleration, Kp, Ki, Kd);
    
-   [t, y] = ode45(ode_fun, [0, 25], y0);
+   [t,y] = eulerSolver(h,tid,y0,trumRadie, vridPunktLangdA, vridPunktLangdB, friktionsKoefficient, hjul, hjulMassa, m, hissArea, malAcceleration, Kp, Ki, Kd);
    
-   hastighet = y(:, 2); 
-   appliceringsKraft  = y(:, 4);
-   
-   % Nollställ kraften vid stillastående för varje mätpunkt och 
-   appliceringsKraft(abs(hastighet) < 1) = 0;
-   appliceringsKraft(appliceringsKraft < 0) = 0;
-   
-   %Vi behöver intertpolera värdena för att passa till den gemensamma
-   %tidsaxeln
-   Z(i, :) = interp1(t, appliceringsKraft, t_fix, 'linear', 0);
-   
-   i = i + 1; 
+   appliceringsKraft = y(:, 4);
+   appliceringsKraft(y(:,2)>-0.1) = 0;
+   Z(i, :) = appliceringsKraft;
+   i = i+1;
 end
-
-[T, M_grid] = meshgrid(t_fix, massaSpan);
-
+[T, M_grid] = meshgrid(t, massaSpan);
 figure
 s = surf(T, M_grid, Z);
 ax = gca; 
 ax.FontSize = 18;
 colormap turbo
-s.EdgeAlpha = 0.3;
+s.EdgeAlpha = 0.2;
 
 xlabel('Tid [s]')
 ylabel('Massa [kg]')
